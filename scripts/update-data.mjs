@@ -26,7 +26,7 @@ const DATA_PATH = new URL("../data/funds.json", import.meta.url);
 
 // Exact Fintual asset_provider ids (confirmed from a live /asset_providers dump).
 const PROVIDERS = {
-  LARRAINVIAL: 39, // "LARRAIN VIAL ACTIVOS S.A. ADMINISTRADORA GENERAL DE FONDOS"
+  LARRAINVIAL: 11, // "LARRAINVIAL ASSET MANAGEMENT ADMINISTRADORA GENERAL DE FONDOS S.A."
   ITAU: 14,        // "ITAU ADMINISTRADORA GENERAL DE FONDOS S.A."
   SANTANDER: 17,   // "SANTANDER ASSET MANAGEMENT S.A. ADMINISTRADORA GENERAL DE FONDOS"
   BANCHILE: 3,      // "BANCHILE ADMINISTRADORA GENERAL DE FONDOS S.A."
@@ -73,7 +73,7 @@ function normalize(str) {
 }
 
 async function resolveRealAssetId(source, cacheMap, fundId) {
-  if (cacheMap[fundId]?.realAssetId) return cacheMap[fundId].realAssetId;
+  if (!process.env.DEBUG_PROVIDERS && cacheMap[fundId]?.realAssetId) return cacheMap[fundId].realAssetId;
 
   const conceptualAssets = await fetchJson(`${API_BASE}/asset_providers/${source.providerId}/conceptual_assets`);
   const fund = conceptualAssets.data.find((a) =>
@@ -92,6 +92,11 @@ async function resolveRealAssetId(source, cacheMap, fundId) {
   );
   if (!serie) serie = realAssets.data[0];
   if (!serie) throw new Error(`Sin series disponibles para "${source.nameHint}"`);
+
+  if (process.env.DEBUG_PROVIDERS) {
+    const allSymbols = realAssets.data.map((r) => r.attributes.symbol).join(", ");
+    console.log(`   ↳ ${fundId}: fondo="${fund.attributes.name}" serieElegida="${serie.attributes.symbol}" disponibles=[${allSymbols}]`);
+  }
 
   cacheMap[fundId] = { realAssetId: serie.id, symbol: serie.attributes.symbol };
   return serie.id;
