@@ -197,10 +197,9 @@ async function fetchEconIndicators() {
     { label: "USD/CLP", value: `$${fmtCLP(main.dolar?.valor)}`, asOf: fecha(main.dolar?.fecha) },
     { label: "IPC · mes", value: typeof lastIpcPoint?.valor === "number" ? `${lastIpcPoint.valor > 0 ? "+" : ""}${lastIpcPoint.valor.toFixed(1)}%` : "—", asOf: lastIpcPoint ? fecha(lastIpcPoint.fecha) : "—" },
     { label: "IPC 12M", value: ipc12m !== null ? `${ipc12m > 0 ? "+" : ""}${ipc12m.toFixed(1)}%` : "—", asOf: "trailing 12m" },
-    { label: "TPM", value: typeof main.tpm?.valor === "number" ? `${main.tpm.valor.toFixed(2)}%` : "—", asOf: fecha(main.tpm?.fecha) },
     // No hay una tasa "DAP 12M" oficial única (cada banco fija la suya) —
     // se usa la TPM del Banco Central como aproximación de referencia.
-    { label: "DAP 12M*", value: typeof main.tpm?.valor === "number" ? `${main.tpm.valor.toFixed(2)}%` : "—", asOf: "aprox. = TPM" },
+    { label: "DAP 12M*", value: typeof main.tpm?.valor === "number" ? `${main.tpm.valor.toFixed(2)}%` : "—", asOf: fecha(main.tpm?.fecha) },
   ];
 }
 
@@ -210,8 +209,7 @@ const ECON_INDICATORS_FALLBACK = [
   { label: "USD/CLP", value: "—", asOf: "" },
   { label: "IPC · mes", value: "—", asOf: "" },
   { label: "IPC 12M", value: "—", asOf: "" },
-  { label: "TPM", value: "—", asOf: "" },
-  { label: "DAP 12M*", value: "—", asOf: "aprox. = TPM" },
+  { label: "DAP 12M*", value: "—", asOf: "" },
 ];
 
 function findValueOnOrBefore(series, targetDate) {
